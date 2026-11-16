@@ -20,12 +20,14 @@ const (
 	IconButtonRaised
 )
 
-// IconButton is a button of an icon alone, Size points across, faded while Disabled. Icon follows what it reads, and LabelFunc replaces Label, what assistive technology reads.
+// IconButton is a button of an icon alone, Size points across, faded while Disabled. Icon follows what it reads, and LabelFunc replaces Label, what assistive technology reads. The label is also the tooltip that shows as the pointer rests on it, unless Tooltip says otherwise.
 type IconButton struct {
 	Icon      func() *core.SVG
 	Label     string
 	LabelFunc func() string
-	Variant   IconButtonVariant
+	// Tooltip, when set, says the tooltip in place of the label, and follows it; one that returns "" shows none.
+	Tooltip func() string
+	Variant IconButtonVariant
 	// Size is 28 for IconButtonGhost and 32 for a circle when 0.
 	Size core.Points
 	// IconSize is the glyph's, 60% of Size for IconButtonGhost and 45% for
@@ -53,7 +55,7 @@ func (b IconButton) Render(cx *core.Scope) core.Node {
 		tint = colors.Text
 	}
 	return base.Button{OnPress: func(core.PressEvent) { b.OnPress() }, Label: b.Label, LabelFunc: b.LabelFunc,
-		Selected: b.Selected, Disabled: b.Disabled, TestID: b.TestID, Desktop: core.DesktopViewProps{WindowDrag: core.WindowDragOff},
+		Selected: b.Selected, Disabled: b.Disabled, TestID: b.TestID, Tooltip: b.tooltip(cx), Desktop: core.DesktopViewProps{WindowDrag: core.WindowDragOff},
 		Style: core.Style{Width: core.Pt(size), Height: core.Pt(size), AlignItems: core.AlignCenter, JustifyContent: core.JustifyCenter,
 			CornerRadius: 8, Disabled: Dimmed()},
 		StyleFunc: func() core.Style {
@@ -91,8 +93,23 @@ func (b IconButton) circle(cx *core.Scope) core.Node {
 		return s
 	}
 	return Press{OnPress: b.OnPress, Scale: 0.96, Label: b.Label, LabelFunc: b.LabelFunc, Selected: b.Selected, Disabled: b.Disabled, TestID: b.TestID,
-		HitSlop: max(0, (44-size)/2), Style: core.Style{Group: "button"},
+		HitSlop: max(0, (44-size)/2), Style: core.Style{Group: "button"}, Tooltip: b.tooltip(cx),
 		Children: []core.Node{core.View{StyleFunc: face, Children: []core.Node{IconOf(b.Icon, b.glyph(size, 0.45), tint)}}}}
+}
+
+// tooltip is the bubble that shows as the pointer rests on the button: Tooltip, else the label, and none while that is empty.
+func (b IconButton) tooltip(cx *core.Scope) core.Node {
+	text := b.Tooltip
+	if text == nil {
+		text = b.LabelFunc
+	}
+	if text == nil {
+		if b.Label == "" {
+			return nil
+		}
+		return tooltipBubble(cx, b.Label, nil)
+	}
+	return core.Show{When: func() bool { return text() != "" }, Then: func(cx *core.Scope) core.Node { return tooltipBubble(cx, "", text) }}
 }
 
 // glyph is the icon's size, ratio of size unless IconSize sets it.

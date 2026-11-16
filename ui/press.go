@@ -21,10 +21,12 @@ type Press struct {
 	// LabelFunc replaces Label, as a View's does.
 	Label     string
 	LabelFunc func() string
-	Selected  func() bool
-	HitSlop   core.Points
-	TestID    string
-	Children  []core.Node
+	// Tooltip shows above it once the pointer rests on it, as a View's.
+	Tooltip  core.Node
+	Selected func() bool
+	HitSlop  core.Points
+	TestID   string
+	Children []core.Node
 }
 
 // Render implements core.Node.
@@ -47,6 +49,6 @@ func (p Press) Render(cx *core.Scope) core.Node {
 	return base.Button{OnPress: onPress, OnLongPress: onLongPress, Disabled: p.Disabled, Selected: p.Selected,
 		OnPressDown: func(core.PressEvent) { Spring(cx, s, scale, pressSpring) },
 		OnPressUp:   func(core.PressEvent) { Spring(cx, s, 1, pressSpring) },
-		Role:        p.Role, Label: p.Label, LabelFunc: p.LabelFunc, HitSlop: core.All(p.HitSlop), TestID: p.TestID,
+		Role:        p.Role, Label: p.Label, LabelFunc: p.LabelFunc, HitSlop: core.All(p.HitSlop), TestID: p.TestID, Tooltip: p.Tooltip,
 		Style: style, StyleFunc: p.StyleFunc, Children: p.Children}
 }
