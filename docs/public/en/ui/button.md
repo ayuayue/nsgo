@@ -24,7 +24,7 @@ ui.Button{Text: "Save", Icon: lucide.Check, Flex: 1, OnPress: save}
 
 `Color` fills the button with a color of the app's instead of a variant's, and `Tint` its icon. `Flex` gives it a share of a row; `TestID` names it for tests.
 
-A button of an icon alone is `ui.IconButton`, with `Variant` `IconButtonGhost` or `IconButtonRaised`, a `Size` in points and a `Label` for assistive technology. A `ui.Button` with `Icon` and no `Text` is a square too, and needs `Label`.
+A button of an icon alone is `ui.IconButton`, with `Variant` `IconButtonGhost` or `IconButtonRaised`, a `Size` in points and a `Label` for assistive technology. On desktops the label also shows as a tooltip once the pointer rests on the button; `Tooltip` says something else there, and one that returns `""` shows none. A `ui.Button` with `Icon` and no `Text` is a square too, and needs `Label`.
 
 ```go preview=button/icon
 ui.IconButton{Icon: lucide.Trash, Label: "Delete", Variant: ui.IconButtonGhost, OnPress: remove}
